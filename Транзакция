@@ -1,0 +1,31 @@
+-- =========================
+-- Transaction
+-- =========================
+
+-- 1
+BEGIN;
+
+INSERT INTO payment (payment_date, amount, payment_method, reservation_id)
+VALUES (CURRENT_DATE, 45000, 'Card', 1);
+
+
+SAVEPOINT payment_added;
+
+UPDATE guest SET phone = '87779998877' WHERE guest_id = 1;
+
+
+ROLLBACK TO SAVEPOINT payment_added;
+
+COMMIT;
+
+--2
+START TRANSACTION;
+
+UPDATE room SET status = 'Occupied' WHERE room_id = 2;
+
+
+INSERT INTO service_usage (usage_date, quantity, reservation_id, service_id)
+VALUES ('2026-05-02', 1, 2, 999); 
+
+
+ROLLBACK;
