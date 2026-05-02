@@ -1,0 +1,35 @@
+INSERT INTO hotel (hotel_name, address, rating) VALUES
+('Grand Palace', 'Almaty, Abay 150', 5),
+('City Inn', 'Astana, Turan 45', 4);
+
+INSERT INTO room (room_number, room_type, price_per_night, status, hotel_id) VALUES
+('101', 'Standard', 20000, 'Available', 1),
+('102', 'Lux', 40000, 'Occupied', 1),
+('201', 'Standard', 18000, 'Available', 2),
+('202', 'VIP', 70000, 'Available', 2);
+
+INSERT INTO guest (full_name, phone, email, passport_number) VALUES
+('Ali Khan', '87001234567', 'ali@mail.com', 'P123456'),
+('Madina Serikova', '87005554433', 'madina@mail.com', 'P654321'),
+('Dias Nurpeisov', '87007778899', 'dias@mail.com', 'P111222');
+
+INSERT INTO employee (full_name, position, salary, hotel_id) VALUES
+('Aigerim Sadykova', 'Receptionist', 250000, 1),
+('Nurlan Bekov', 'Manager', 400000, 1),
+('Dana Karimova', 'Accountant', 300000, 2);
+
+INSERT INTO reservation (check_in_date, check_out_date, total_amount, guest_id, room_id) VALUES
+('2025-03-01', '2025-03-05', 80000, 1, 1),
+('2025-03-02', '2025-03-06', 160000, 2, 2),
+('2025-03-10', '2025-03-12', 36000, 3, 3);
+
+INSERT INTO payment (payment_date, amount, payment_method, reservation_id) VALUES
+('2025-03-01', 80000, 'Card', 1),
+('2025-03-02', 160000, 'Cash', 2),
+('2025-03-10', 36000, 'Card', 3);
+
+INSERT INTO service (service_name, service_price) VALUES
+('Breakfast', 5000),
+('Spa', 15000),
+('Airport Transfer', 10000),
+('Laundry', 7000);
