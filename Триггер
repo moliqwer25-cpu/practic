@@ -1,0 +1,101 @@
+-- =========================
+-- TRIGGERS
+-- =========================
+
+--	Жол деңгейіндегі триггер 
+CREATE OR REPLACE FUNCTION update_room_status_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE room SET status = 'Occupied' 
+    WHERE room_id = NEW.room_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_update_room_status
+AFTER INSERT ON reservation
+FOR EACH ROW EXECUTE FUNCTION update_room_status_func();
+
+
+INSERT INTO reservation (check_in_date, check_out_date, total_amount, guest_id, room_id) 
+VALUES ('2026-05-10', '2026-05-15', 50000, 1, 1);
+SELECT room_id, status FROM room WHERE room_id = 1;
+
+-- 	Лог-триггер 
+CREATE TABLE audit_log (
+    log_id SERIAL PRIMARY KEY,
+    table_name VARCHAR(50),
+    operation VARCHAR(10),
+    changed_at TIMESTAMP DEFAULT NOW(),
+    user_name VARCHAR(50)
+);
+
+CREATE OR REPLACE FUNCTION log_changes_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO audit_log (table_name, operation, user_name)
+    VALUES (TG_TABLE_NAME, TG_OP, CURRENT_USER);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_guest_log
+AFTER INSERT OR UPDATE OR DELETE ON guest
+FOR EACH ROW EXECUTE FUNCTION log_changes_func();
+
+
+UPDATE guest SET phone = '87777777777' WHERE guest_id = 3;
+SELECT * FROM guest;
+
+-- Оператор деңгейіндегі триггер 
+CREATE OR REPLACE FUNCTION notify_mass_update_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE NOTICE 'Кестеде жаппай өзгеріс орындалды: %', TG_TABLE_NAME;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_room_mass_update
+AFTER UPDATE ON room
+FOR EACH STATEMENT EXECUTE FUNCTION notify_mass_update_func();
+
+
+UPDATE room SET price_per_night = price_per_night + 500;
+
+--	INSTEAD OF триггер
+CREATE VIEW guest_summary AS
+SELECT full_name, phone FROM guest;
+
+CREATE OR REPLACE FUNCTION instead_of_guest_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO guest (full_name, phone)
+    VALUES (NEW.full_name, NEW.phone);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_instead_guest
+INSTEAD OF INSERT ON guest_summary
+FOR EACH ROW EXECUTE FUNCTION instead_of_guest_func();
+
+
+INSERT INTO guest_summary (full_name, phone) VALUES ('Bauyrzhan Aliev', '87770001122');
+SELECT * FROM guest WHERE full_name = 'Bauyrzhan Aliev';
+
+--	Жүйелік триггер 
+CREATE OR REPLACE FUNCTION log_ddl_event()
+RETURNS event_trigger AS $$
+BEGIN
+    RAISE NOTICE 'ДҚ құрылымы өзгерді: % командасы орындалды', tg_tag;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE EVENT TRIGGER trg_system_ddl_log
+ON ddl_command_start
+EXECUTE FUNCTION log_ddl_event();
+
+
+CREATE TABLE test_table (id INT);
+DROP TABLE test_table;
