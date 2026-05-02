@@ -1,0 +1,48 @@
+-- =========================
+-- PROCEDURES 
+-- =========================
+
+-- 1. Жаңа конакты тіркеу 
+CREATE OR REPLACE PROCEDURE add_new_guest(
+    p_name VARCHAR, 
+    p_phone VARCHAR, 
+    p_email VARCHAR, 
+    p_passport VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO guest (full_name, phone, email, passport_number)
+    VALUES (p_name, p_phone, p_email, p_passport);
+END;
+$$;
+
+
+CALL add_new_guest('Arman Serikov', '87071112233', 'arman@mail.kz', 'B998877');
+
+-- 2.Бөлме бағасын жаңарту 
+CREATE OR REPLACE PROCEDURE update_room_prices(p_type VARCHAR, p_percent NUMERIC)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE room 
+    SET price_per_night = price_per_night * (1 + p_percent / 100)
+    WHERE room_type = p_type;
+END;
+$$;
+
+
+CALL update_room_prices('Lux', 10);
+
+-- 3.Ескі төлемдерді жою 
+CREATE OR REPLACE PROCEDURE delete_old_payments(p_date DATE)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM payment WHERE payment_date < p_date;
+END;
+$$;
+
+
+CALL delete_old_payments('2024-01-01');
+
