@@ -1,0 +1,18 @@
+CREATE ROLE reception_role;
+CREATE ROLE accountant_role;
+
+CREATE USER receptionist_user WITH PASSWORD '1111';
+CREATE USER accountant_user WITH PASSWORD '2222';
+
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
+
+GRANT SELECT, INSERT, UPDATE ON guest TO reception_role;
+GRANT SELECT, INSERT, UPDATE ON reservation TO reception_role;
+GRANT SELECT ON room TO reception_role;
+
+GRANT SELECT ON payment TO accountant_role;
+GRANT SELECT ON reservation TO accountant_role;
+GRANT SELECT ON service_usage TO accountant_role;
+
+GRANT reception_role TO receptionist_user;
+GRANT accountant_role TO accountant_user;
